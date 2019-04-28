@@ -1,17 +1,27 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <v-container>
+      <header>
+        <h1>Squad Servers Fast</h1>
+        <img alt="Vue logo" src="./assets/squad-logo.png">
+        <h5>Renting a custom (unlicensed) Squad server is easy with our 5 minute setup. No account registration necessary.</h5>
+      </header>
+
+      <Configuration />
+    </v-container>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+
+
+import Configuration from './components/Configuration/Configuration';
+
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    Configuration
   }
 }
 </script>
