@@ -2,13 +2,17 @@
   <div id="app">
     <v-container>
       <header>
-        <h1>Squad Servers Fast</h1>
-        <img alt="Vue logo" src="./assets/squad-logo.png">
-        <h5>Renting a custom (unlicensed) Squad server is easy with our 5 minute setup. No account registration necessary.</h5>
+        <h1 class="fancyheader">Squad Servers Fast</h1>
+        <img class="mt-3" alt="Vue logo" src="./assets/squad-logo.png">
+        <div class="mt-3">
+          <h5>Renting a custom (unlicensed) Squad server is easy with our 5 minute setup. No account registration necessary.</h5>
+        </div>
       </header>
 
       <Configuration />
+      <Footer />
     </v-container>
+
   </div>
 </template>
 
@@ -16,17 +20,27 @@
 
 
 import Configuration from './components/Configuration/Configuration';
+import Footer from './components/Footer';
+import 'typeface-gugi/index.css';
 
 
 export default {
   name: 'app',
   components: {
-    Configuration
+    Configuration,
+    Footer
   }
 }
 </script>
 
 <style>
+
+
+.fancyheader {
+    font-family: 'Gugi', cursive;
+    font-size: 52px;
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

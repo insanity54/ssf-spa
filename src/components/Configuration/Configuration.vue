@@ -13,69 +13,148 @@
           <v-text-field v-model="name" :counter="128" :rules="nameRules" label="Server Name" hint="The name your server will show up as in the Squad server browser" required persistent-hint></v-text-field>
 
 
-          <v-select v-model="region_select" :items="regions" :rules="[v => !!v || 'Region is required']" label="Region"
+          <v-select attach v-model="region_select" :items="regions" :rules="[v => !!v || 'Region is required']" label="Region"
             hint="The location on planet earth where your Squad server will exist. Recommended to select a location near the majority of your players." required persistent-hint></v-select>
 
           <v-text-field v-model="email" :rules="emailRules" label="Administrator E-mail" hint="The e-mail address where you will receive your server's administrator log-in info." required persistent-hint></v-text-field>
 
-          <v-checkbox v-model="checkbox" :rules="[v => !!v || 'You must agree to continue!']" label="Do you agree?" required></v-checkbox>
+          <div class="mt-5">
+            <v-dialog
+                  v-model="privacyPolicyDialog"
+                  width="500"
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      color="brown lighten-2"
+                      dark
+                      v-on="on"
+                    >
+                      SquadServersFast privacy policy
+                    </v-btn>
+                  </template>
 
-          <v-btn :disabled="!valid" color="success" @click="validate">
-            Validate
-          </v-btn>
+                  <v-card>
+                    <v-card-title
+                      class="headline grey lighten-2"
+                      primary-title
+                    >
+                      Privacy Policy
+                    </v-card-title>
 
-          <v-btn color="error" @click="reset">
-            Reset Form
-          </v-btn>
+                    <v-card-text>
+                        <p>SquadServersFast.com stores the Steam usernames of your server administrators for the purpose of setting up your Squad server.</p>
+                        <p>SquadServersFast.com stores your server message list, map rotation list, and mod list for the purpose of setting up your Squad server.</p>
+                        <p>SquadServersFast.com does not collect a username or password from you.</p>
+                        <p>SquadServersFast.com uses your E-Mail address to contact you with details about your service.</p>
+                        <p>SquadServersFast.com deletes all of your data when you delete your Squad server.</p>
+                        <p>SquadServersFast.com does not share any of your information with third parties.</p>
+                    </v-card-text>
 
-          <v-btn color="warning" @click="resetValidation">
-            Reset Validation
-          </v-btn>
+                    <v-divider></v-divider>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="primary"
+                        flat
+                        @click="privacyPolicyDialog = false"
+                      >
+                        Close
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+          </div>
+          <v-checkbox v-model="checkbox" :rules="[v => !!v || 'You must agree to continue!']" label="I agree to SquadServersFast privacy policy." required></v-checkbox>
+
         </v-form>
       </v-layout>
   </v-card>
 
-
+  <!-- Section admin list -->
   <v-card class="mt-5">
-
-    <v-toolbar color="red" dark>
-
+    <v-toolbar color="cyan" dark>
       <v-toolbar-title>{{ name }} Administrators List</v-toolbar-title>
-
       <v-spacer></v-spacer>
-
       <v-btn icon @click.stop="new_admin_dialog = true">
         <v-icon>add</v-icon>
       </v-btn>
     </v-toolbar>
-
     <v-card-title>
-      <span class="headline">Select the Steam users who can administer your server.</span>
+      <span class="headline">Select the Steam users who may administer your server. Optional.</span>
     </v-card-title>
-
-
     <v-list three-line>
+      <v-subheader v-if="administrators.length === 0">
+        No administrators selected. Click the <v-icon>add</v-icon> at the top left of this card to add one.
+      </v-subheader>
       <template v-for="(item, index) in administrators">
+
         <v-subheader v-if="item.header" :key="item.header">
           {{ item.header }}
         </v-subheader>
 
         <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
-
         <v-list-tile v-else :key="item.title" avatar @click="">
           <v-list-tile-avatar>
             <img :src="item.avatar">
           </v-list-tile-avatar>
-
           <v-list-tile-content>
             <v-list-tile-title v-html="item.title"></v-list-tile-title>
             <v-list-tile-sub-title v-html="item.subtitle"></v-list-tile-sub-title>
           </v-list-tile-content>
+          <v-list-tile-action>
+            <v-btn icon @click="deleteUser(index)"><v-icon>close</v-icon></v-btn>
+          </v-list-tile-action>
         </v-list-tile>
       </template>
     </v-list>
   </v-card>
 
+
+
+    <!-- Section mods -->
+    <v-card class="mt-5">
+      <v-toolbar color="pink" dark>
+        <v-toolbar-title>{{ name }} Mods List</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn icon @click.stop="modDialog = true">
+          <v-icon>add</v-icon>
+        </v-btn>
+      </v-toolbar>
+      <v-card-title>
+        <span class="headline">Select the mods your server will run. Optional.</span>
+      </v-card-title>
+      <v-list three-line>
+        <v-subheader class="mb-3">
+          <v-layout column justify-start align-start>
+            <v-flex class="noModsSection" v-if="mods.length === 0">
+              No mods selected. Click the <v-icon>add</v-icon> at the top right of this card to add one.
+            </v-flex>
+            <v-flex class="pt-2">
+              To browse the complete list of mods, see <a target="_blank" href="https://steamcommunity.com/workshop/browse/?appid=393380">Steam Workshop</a>
+            </v-flex>
+          </v-layout>
+        </v-subheader>
+        <template v-for="(item, index) in mods">
+          <v-subheader v-if="item.header" :key="item.header">
+            {{ item.header }}
+          </v-subheader>
+          <v-divider v-else-if="item.divider" :key="index" :inset="item.inset"></v-divider>
+          <v-list-tile v-else :key="item.title" avatar @click="">
+            <v-list-tile-avatar>
+              <img :src="item.preview_url">
+            </v-list-tile-avatar>
+            <v-list-tile-content>
+              <v-list-tile-title v-html="item.title"></v-list-tile-title>
+              <v-list-tile-sub-title v-html="item.short_description"></v-list-tile-sub-title>
+            </v-list-tile-content>
+            <v-list-tile-action>
+              <v-btn icon @click="deleteMod(index)"><v-icon>close</v-icon></v-btn>
+            </v-list-tile-action>
+          </v-list-tile>
+        </template>
+      </v-list>
+    </v-card>
 
   <!-- Map Rotation -->
   <v-card class="mt-5">
@@ -85,7 +164,7 @@
     </v-toolbar>
 
     <v-card-title>
-      <span class="headline">Drag &amp; Drop your map selections to the Active Maps list <v-icon>arrow_right_alt</v-icon></span>
+      <span class="headline">Choose the maps your server will run. Drag &amp; Drop to reorder.</span>
     </v-card-title>
 
     <v-card-text>
@@ -126,8 +205,103 @@
     </v-card-text>
   </v-card>
 
+
+  <!-- Server Messages -->
+  <v-card class="mt-5">
+    <v-toolbar color="purple" dark>
+      <v-toolbar-title>{{ name }} Server Messages</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="createMessage(serverMessages.length)">
+        <v-icon>add</v-icon>
+      </v-btn>
+    </v-toolbar>
+
+    <v-card-title>
+      <span class="headline">Define messages your server will display to players. Optional.</span>
+    </v-card-title>
+
+    <v-subheader v-if="serverMessages.length === 0">
+      No messages are defined. Click the <v-icon>add</v-icon> at the top right of this card to add one.
+    </v-subheader>
+
+    <v-card-text>
+      <v-form>
+          <v-text-field
+            v-for="(item, idx) in serverMessages"
+            :key="idx"
+            :label="serverMessages[idx]"
+            solo
+          >
+            <template v-slot:append>
+              <v-btn icon @click="deleteMessage(idx)">
+                <v-icon>delete</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
+
+      </v-form>
+    </v-card-text>
+  </v-card>
+
+
+  <!-- MOTD -->
+  <v-card class="mt-5">
+    <v-toolbar color="red" dark>
+      <v-toolbar-title>{{ name }} Message of the Day</v-toolbar-title>
+      <v-spacer></v-spacer>
+    </v-toolbar>
+
+    <v-card-title>
+      <span class="headline">Set the message players will see when joining your server. Optional.</span>
+    </v-card-title>
+
+    <v-card-text>
+      <v-form>
+          <v-text-field
+            label="Example: Welcome to our server! Check us out at SquadServersFast.com."
+            solo
+            clearable
+          >
+          </v-text-field>
+
+      </v-form>
+    </v-card-text>
+  </v-card>
+
+
+  <!-- Section Payment -->
+  <v-card class="mt-5">
+    <v-toolbar color="green" dark>
+      <v-toolbar-title>Payment</v-toolbar-title>
+      <v-spacer></v-spacer>
+    </v-toolbar>
+
+
+
+    <v-card-text>
+      <v-form>
+          <v-text-field
+            label="Coupon code (optional)"
+            clearable
+          >
+          </v-text-field>
+
+      </v-form>
+
+      PAYMENT
+    </v-card-text>
+  </v-card>
+
+
+
+
   <v-dialog v-model="new_admin_dialog" persistent max-width="600px">
     <v-card>
+      <v-toolbar dark color="cyan">
+        <v-btn icon dark @click="new_admin_dialog = false">
+          <v-icon>close</v-icon>
+        </v-btn>
+      </v-toolbar>
       <v-card-title>
         <span class="headline">Add a Server Administrator</span>
       </v-card-title>
@@ -135,41 +309,133 @@
         <v-container grid-list-md>
           <v-layout wrap row>
             <v-flex xs12 sm8 md8>
-              <v-text-field label="Steam name" required hint="The username of the steam user" persistent-hint></v-text-field>
+              <v-text-field v-model="steamNickname" label="Steam name" required hint="The username of the steam user" persistent-hint></v-text-field>
             </v-flex>
             <v-flex xs12 sm4 md4>
-              <v-btn>
+              <v-btn @click="findUser()">
                 <v-icon>search</v-icon> Search
               </v-btn>
             </v-flex>
           </v-layout>
           <v-layout column class="mt-5">
             <v-flex>
-              RESULTS HERE
+
+              <v-progress-circular
+                v-if="this.steamLookupInProgress"
+                indeterminate
+                color="primary"
+              ></v-progress-circular>
+
+              <v-list three-line>
+                <template v-for="(item, index) in steamResults">
+
+                  <v-list-tile :key="item.steamid" avatar @click="">
+                    <v-list-tile-avatar>
+                      <img :src="item.avatarmedium">
+                    </v-list-tile-avatar>
+
+                    <v-list-tile-content>
+                      <v-list-tile-title v-html="item.personaname"></v-list-tile-title>
+                      <v-list-tile-sub-title v-html="item.profileurl"></v-list-tile-sub-title>
+                    </v-list-tile-content>
+
+                    <v-list-tile-action>
+                      <v-btn @click="selectUser(index)">Select</v-btn>
+                    </v-list-tile-action>
+                  </v-list-tile>
+                </template>
+              </v-list>
+
+
             </v-flex>
           </v-layout>
         </v-container>
       </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" flat @click="new_admin_dialog = false">Close</v-btn>
-        <v-btn color="blue darken-1" flat @click="new_admin_dialog = false">Save</v-btn>
-      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+
+  <v-dialog v-model="modDialog" persistent max-width="600px">
+    <v-card>
+      <v-toolbar dark color="pink">
+        <v-btn icon dark @click="modDialog = false">
+          <v-icon>close</v-icon>
+        </v-btn>
+      </v-toolbar>
+      <v-card-title>
+        <span class="headline">Add a Mod</span>
+      </v-card-title>
+      <v-card-text>
+        <v-container grid-list-md>
+          <v-layout wrap row>
+            <v-flex xs12 sm8 md8>
+              <v-text-field v-model="steamModName" label="Squad mod" required hint="The mod to search for in the Steam Workshop" persistent-hint></v-text-field>
+            </v-flex>
+            <v-flex xs12 sm4 md4>
+              <v-btn @click="findMod()">
+                <v-icon>search</v-icon> Search
+              </v-btn>
+            </v-flex>
+          </v-layout>
+          <v-layout column class="mt-5">
+            <v-flex>
+
+              <v-progress-circular
+                v-if="this.steamLookupInProgress"
+                indeterminate
+                color="primary"
+              ></v-progress-circular>
+
+              <v-list three-line>
+                <template v-for="(item, index) in modResults.publishedfiledetails">
+
+                  <v-list-tile :key="item.publishedfileid" avatar @click="">
+                    <v-list-tile-avatar>
+                      <img :src="item.preview_url">
+                    </v-list-tile-avatar>
+
+                    <v-list-tile-content>
+                      <v-list-tile-title v-html="item.title"></v-list-tile-title>
+                      <v-list-tile-sub-title v-html="item.short_description"></v-list-tile-sub-title>
+                    </v-list-tile-content>
+
+                    <v-list-tile-action>
+                      <v-btn @click="selectMod(index)">Select</v-btn>
+                    </v-list-tile-action>
+                  </v-list-tile>
+                </template>
+
+              </v-list>
+
+
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card-text>
     </v-card>
   </v-dialog>
 
 </div>
+
+
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+import draggable from 'vuedraggable';
+
+
 export default {
   components: {
     draggable
   },
   name: 'Configuration',
   data: () => ({
+    motd: '',
+    steamModName: '',
+    mods: [],
     new_admin_dialog: false,
+    modDialog: false,
+    privacyPolicyDialog: false,
     valid: true,
     nameRules: [
       v => !!v || 'Name is required',
@@ -208,16 +474,7 @@ export default {
     ],
     region_select: 2,
     checkbox: false,
-    administrators: [{
-        avatar: 'https://cdn.vuetifyjs.com/images/lists/1.jpg',
-        title: '[KG] Crispy',
-        subtitle: "Administrator"
-      },
-      {
-        divider: true,
-        inset: true
-      },
-    ],
+    administrators: [],
     // use ./util/genMapList.js to create mapItems array.
     availableMaps: [{
       "id": 0,
@@ -537,7 +794,22 @@ export default {
         "id": 38,
         "text": "Kamdesh"
       }
-    ]
+    ],
+    steamNickname: '',
+    steamResults: '',
+    steamLookupInProgress: false,
+    serverMessages: [
+      'Example: Welcome to our server!',
+      'Example: Please apologize for Team Kills in ALL chat.',
+      'Example: Visit us on the web at SquadServersFast.com'
+    ],
+    defaultServerMessages: [
+      'Example: Welcome to our server!',
+      'Example: Please apologize for Team Kills in ALL chat.',
+      'Example: Visit us on the web at SquadServersFast.com'
+    ],
+    modResults: '',
+    modResultsPage: 0
   }),
   methods: {
     validate() {
@@ -560,7 +832,107 @@ export default {
       const selectedMap = this.activeMaps[idx];
       this.availableMaps.push(selectedMap);
       this.activeMaps.splice(idx, 1);
+    },
+    findUser() {
+      const user = this.steamNickname;
+      // Make a request for a user with a given ID
+      this.steamLookupInProgress = true;
+      this.$http.get(`https://hook.io/insanity54/ssf-steamid/api/${this.steamNickname}`)
+        .then(function (response) {
+          // handle success
+          console.log(response);
+          if (response.body.response.success === 1) {
+            const steamId = response.body.response.steamid
+            return this.$http.get(`https://hook.io/insanity54/ssf-profile/api/${steamId}`).then((res) => {
+              this.steamResults = res.body.response.players;
+            })
+            .catch((err) => {
+              // console.log(err);
+            })
+            .then(() => {
+              // console.log('sub request finished');
+            })
+          }
+        })
+        .catch(function (error) {
+          // handle error
+          // console.log(error);
+        })
+        .then(function () {
+          // always executed
+          // console.log('request finished');
+          this.steamLookupInProgress = false;
+        });
+    },
+    selectUser(idx) {
+      const user = this.steamResults[idx];
+      console.log(`selected user ${user}`);
+      console.log(user);
+      this.administrators.splice(idx, 0, {
+        avatar: user.avatarmedium,
+        title: user.personaname,
+        subtitle: user.profileurl
+      });
+      this.new_admin_dialog = false;
+    },
+    deleteUser(idx) {
+      const user = this.administrators[idx];
+      this.administrators.splice(idx, 1);
+    },
+    createMessage(idx) {
+      this.serverMessages.push(this.defaultServerMessages[idx]);
+    },
+    deleteMessage(idx) {
+      this.serverMessages.splice(idx, 1);
+    },
+    findMod() {
+      // POST https://partner.steam-api.com/ISteamRemoteStorage/EnumerateUserSubscribedFiles/v1/
+      const mod = this.steamModName;
+      // Make a request for a user with a given ID
+      this.steamLookupInProgress = true;
+      this.$http.get(`https://hook.io/insanity54/ssf-mod/api/${mod}`)
+        .then(function (res) {
+          // handle success
+          this.modResults = res.body.response;
+
+          if (res.body.response.publishedfiledetails) {
+            // there are matches
+
+          } else {
+            // no matches
+
+          }
+
+          // if there are more results, look them up
+          if (res.body.response.total > 0) {
+
+          }
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        })
+        .then(function () {
+          // always executed
+          console.log('request finished');
+          this.steamLookupInProgress = false;
+        });
+    },
+    selectMod(idx) {
+      //this.mods.push(modResults.publishedfiledetails[idx]);
+
+      const user = this.steamResults[idx];
+      console.log(`selected user ${user}`);
+      console.log(user);
+      this.mods.splice(idx, 0, this.modResults.publishedfiledetails[idx]);
+      this.modDialog = false;
     }
+  },
+  mounted() {
+    var scriptTag = document.createElement("script");
+    scriptTag.src = "https://js.squareup.com/v2/paymentform";
+    document.getElementsByTagName('head')[0].appendChild(scriptTag);
+
   }
 }
 </script>
