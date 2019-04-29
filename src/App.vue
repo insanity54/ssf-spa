@@ -10,7 +10,7 @@
       </header>
 
       <Configuration />
-      <Footer />
+      <Footy />
     </v-container>
 
   </div>
@@ -20,7 +20,7 @@
 
 
 import Configuration from './components/Configuration/Configuration';
-import Footer from './components/Footer';
+import Footy from './components/Footy';
 import 'typeface-gugi/index.css';
 
 
@@ -28,7 +28,12 @@ export default {
   name: 'app',
   components: {
     Configuration,
-    Footer
+    Footy
+  },
+  mounted() {
+    var scriptTag = document.createElement("script");
+    scriptTag.src = "https://js.squareup.com/v2/paymentform";
+    document.getElementsByTagName('head')[0].appendChild(scriptTag);
   }
 }
 </script>

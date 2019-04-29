@@ -7,16 +7,18 @@
       <v-toolbar-title>{{ name }} Server Information</v-toolbar-title>
     </v-toolbar>
 
+    <v-card-title>
+      <span class="headline">Customize your server.</span>
+    </v-card-title>
+
       <v-layout class="pa-3">
 
         <v-form ref="configuration" v-model="valid" lazy-validation>
           <v-text-field v-model="name" :counter="128" :rules="nameRules" label="Server Name" hint="The name your server will show up as in the Squad server browser" required persistent-hint></v-text-field>
 
 
-          <v-select attach v-model="region_select" :items="regions" :rules="[v => !!v || 'Region is required']" label="Region"
+          <v-select class="mt-4" attach v-model="region_select" :items="regions" :rules="[v => !!v || 'Region is required']" label="Region"
             hint="The location on planet earth where your Squad server will exist. Recommended to select a location near the majority of your players." required persistent-hint></v-select>
-
-          <v-text-field v-model="email" :rules="emailRules" label="Administrator E-mail" hint="The e-mail address where you will receive your server's administrator log-in info." required persistent-hint></v-text-field>
 
           <div class="mt-5">
             <v-dialog
@@ -46,8 +48,9 @@
                         <p>SquadServersFast.com stores your server message list, map rotation list, and mod list for the purpose of setting up your Squad server.</p>
                         <p>SquadServersFast.com does not collect a username or password from you.</p>
                         <p>SquadServersFast.com uses your E-Mail address to contact you with details about your service.</p>
+                        <p>SquadServersFast.com does not process payments and does not store payment information. Stripe handles all payment data.</p>
                         <p>SquadServersFast.com deletes all of your data when you delete your Squad server.</p>
-                        <p>SquadServersFast.com does not share any of your information with third parties.</p>
+                        <p>SquadServersFast.com does not share your e-mail address, steam usernames, or server configurations with third parties.</p>
                     </v-card-text>
 
                     <v-divider></v-divider>
@@ -281,14 +284,17 @@
     <v-card-text>
       <v-form>
           <v-text-field
+            v-model="paymentCoupon"
             label="Coupon code (optional)"
             clearable
           >
           </v-text-field>
 
+
       </v-form>
 
-      PAYMENT
+      PAYMENT INFO HERE
+
     </v-card-text>
   </v-card>
 
@@ -423,13 +429,13 @@
 <script>
 import draggable from 'vuedraggable';
 
-
 export default {
   components: {
     draggable
   },
   name: 'Configuration',
   data: () => ({
+    paymentCoupon: '',
     motd: '',
     steamModName: '',
     mods: [],
@@ -927,12 +933,6 @@ export default {
       this.mods.splice(idx, 0, this.modResults.publishedfiledetails[idx]);
       this.modDialog = false;
     }
-  },
-  mounted() {
-    var scriptTag = document.createElement("script");
-    scriptTag.src = "https://js.squareup.com/v2/paymentform";
-    document.getElementsByTagName('head')[0].appendChild(scriptTag);
-
   }
 }
 </script>

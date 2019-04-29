@@ -12,7 +12,8 @@
             white--text
             xs12
           >
-            <img class="footerLicenseLogo" :src="unlicenseLogo" /> 2019 — <strong>SquadServersFast</strong>
+            <p>SquadServersFast is brought to you by <a target="_blank" href="https://grimtech.net/about">Grimtech.net</a> and is not affilliated with <a target="_blank" href="https://joinsquad.com/">OWI Squad</a>.</p>
+            <p><img class="footLicenseLogo" :src="unlicenseLogo" /> 2019 — <strong>SquadServersFast</strong></p>
           </v-flex>
       </v-layout>
     </v-footer>
@@ -24,7 +25,7 @@ import 'typeface-gugi/index.css';
 import ul from '../assets/PD-icon-black.svg';
 
 export default {
-  name: 'footer',
+  name: 'footy',
   computed: {
     unlicenseLogo: () => ul,
   },
@@ -38,7 +39,7 @@ export default {
 </script>
 
 <style>
-.footerLicenseLogo {
+.footLicenseLogo {
   height: 1em;
 }
 
