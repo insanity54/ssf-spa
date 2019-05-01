@@ -27,3 +27,8 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Attribution
+
+big green S by casimir_m (Creative Commons) https://www.favicon.cc/?action=icon&file_id=932191

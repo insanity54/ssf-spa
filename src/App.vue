@@ -1,19 +1,14 @@
 <template>
-  <div id="app">
-    <v-container>
-      <header>
-        <h1 class="fancyheader">Squad Servers Fast</h1>
-        <img class="mt-3" alt="Vue logo" src="./assets/squad-logo.png">
-        <div class="mt-3">
-          <h5>Renting a custom (unlicensed) Squad server is easy with our 5 minute setup. No account registration necessary.</h5>
-        </div>
-      </header>
+    <v-app class="ma-0">
+      <v-container>
+        <header>
+          <h1 class="fancyheader">Squad Servers Fast</h1>
+        </header>
 
-      <Configuration />
-      <Footy />
-    </v-container>
-
-  </div>
+        <router-view></router-view>
+        <Footy />
+      </v-container>
+    </v-app>
 </template>
 
 <script>

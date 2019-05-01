@@ -1,6 +1,6 @@
 <template>
   <div id="footy">
-    <v-footer class="mt-5" dark height="150px" color="blue">
+    <v-footer class="mt-5" dark height="auto" color="blue">
 
       <v-layout justify-center row wrap>
 
